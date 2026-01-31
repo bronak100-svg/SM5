@@ -121,7 +121,7 @@
             transform: none;
         }
 
-        .message {
+        .statusmsg {
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -136,13 +136,13 @@
             to { opacity: 1; }
         }
 
-        .message.success {
+        .statusmsg.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
 
-        .message.error {
+        .statusmsg.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
@@ -168,32 +168,32 @@
         <h1>צור קשר</h1>
         <p class="subtitle">נשמח לענות על כל שאלה</p>
         
-        <div id="statusMessage" class="message"></div>
+        <div id="statusMessage" class="statusmsg"></div>
 
         <form id="contactForm">
             <div class="form-group">
-                <label for="name">שם מלא <span class="required">*</span></label>
-                <input type="text" id="name" name="name" required placeholder="הכנס את שמך המלא">
+                <label for="fullname">שם מלא <span class="required">*</span></label>
+                <input type="text" id="fullname" name="fullname" required placeholder="הכנס את שמך המלא">
             </div>
 
             <div class="form-group">
-                <label for="idNumber">תעודת זהות <span class="required">*</span></label>
-                <input type="text" id="idNumber" name="idNumber" required placeholder="123456789" pattern="[0-9]{9}" maxlength="9">
+                <label for="idNum">תעודת זהות <span class="required">*</span></label>
+                <input type="text" id="idNum" name="idNum" required placeholder="123456789" pattern="[0-9]{9}" maxlength="9">
             </div>
 
             <div class="form-group">
-                <label for="email">דוא"ל <span class="required">*</span></label>
-                <input type="email" id="email" name="email" required placeholder="example@email.com">
+                <label for="userEmail">דוא"ל <span class="required">*</span></label>
+                <input type="email" id="userEmail" name="userEmail" required placeholder="example@email.com">
             </div>
 
             <div class="form-group">
-                <label for="phone">טלפון <span class="required">*</span></label>
-                <input type="tel" id="phone" name="phone" required placeholder="0501234567" pattern="[0-9]{9,10}" maxlength="10">
+                <label for="userPhone">טלפון <span class="required">*</span></label>
+                <input type="tel" id="userPhone" name="userPhone" required placeholder="0501234567" pattern="[0-9]{9,10}" maxlength="10">
             </div>
 
             <div class="form-group">
-                <label for="message">הודעה <span class="required">*</span></label>
-                <textarea id="message" name="message" required placeholder="כתוב את הודעתך כאן..."></textarea>
+                <label for="userMsg">הודעה <span class="required">*</span></label>
+                <textarea id="userMsg" name="userMsg" required placeholder="כתוב את הודעתך כאן..."></textarea>
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">שלח הודעה</button>
@@ -207,7 +207,7 @@
         })();
 
         const form = document.getElementById('contactForm');
-        const messageDiv = document.getElementById('statusMessage');
+        const statusDiv = document.getElementById('statusMessage');
         const submitBtn = document.getElementById('submitBtn');
 
         form.addEventListener('submit', function(e) {
@@ -217,39 +217,41 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'שולח...';
 
-            // Get form data
-            const templateParams = {
-                from_name: document.getElementById('name').value,
-                id_number: document.getElementById('idNumber').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                message: document.getElementById('message').value
+            // Prepare form data for EmailJS
+            const formParams = {
+                from_name: document.getElementById('fullname').value,
+                id_number: document.getElementById('idNum').value,
+                email: document.getElementById('userEmail').value,
+                phone: document.getElementById('userPhone').value,
+                message: document.getElementById('userMsg').value
             };
 
-            // Debug: show what we're sending
-            console.log('Sending data:', templateParams);
+            // Debug: log data being sent
+            console.log('שולח נתונים:', formParams);
 
-            // Send email using EmailJS
-            emailjs.send('service_r7a9tp4', 'template_gpfa81w', templateParams)
+            // Send email via EmailJS
+            emailjs.send('service_r7a9tp4', 'template_gpfa81w', formParams)
                 .then(function(response) {
-                    showMessage('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
+                    console.log('הצלחה!', response);
+                    showStatus('ההודעה נשלחה בהצלחה! ניצור איתך קשר בהקדם.', 'success');
                     form.reset();
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'שלח הודעה';
                 }, function(error) {
-                    showMessage('אירעה שגיאה בשליחת ההודעה. אנא נסה שוב.', 'error');
+                    console.error('שגיאה:', error);
+                    showStatus('אירעה שגיאה בשליחת ההודעה. אנא נסה שוב.', 'error');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'שלח הודעה';
                 });
         });
 
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = 'message ' + type;
-            messageDiv.style.display = 'block';
+        function showStatus(text, type) {
+            statusDiv.textContent = text;
+            statusDiv.className = 'statusmsg ' + type;
+            statusDiv.style.display = 'block';
 
             setTimeout(function() {
-                messageDiv.style.display = 'none';
+                statusDiv.style.display = 'none';
             }, 5000);
         }
     </script>
